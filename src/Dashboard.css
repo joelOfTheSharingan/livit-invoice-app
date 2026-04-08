@@ -1,0 +1,309 @@
+/* ── Reset & base ──────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page shell ────────────────────────────────── */
+.dashboard {
+  min-height: 100vh;
+  background: #f5f4f1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1a1a1a;
+}
+
+/* ── Top nav ───────────────────────────────────── */
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 56px;
+  background: #fff;
+  border-bottom: 0.5px solid rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dashboard-nav__brand {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #1a1a1a;
+}
+
+.dashboard-nav__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-nav__email {
+  font-size: 13px;
+  color: #666;
+}
+
+/* ── Content wrapper ───────────────────────────── */
+.dashboard-content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Section cards ─────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  padding: 1.5rem;
+}
+
+.card__title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  color: #1a1a1a;
+}
+
+/* ── Form controls ─────────────────────────────── */
+input,
+select,
+textarea {
+  height: 36px;
+  padding: 0 10px;
+  border: 0.5px solid rgba(0,0,0,0.18);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+input:focus,
+select:focus {
+  border-color: rgba(0,0,0,0.4);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+/* ── Client fields grid ────────────────────────── */
+.client-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.client-fields .full-width {
+  grid-column: 1 / -1;
+}
+
+/* ── Items table ───────────────────────────────── */
+.items-header {
+  display: grid;
+  grid-template-columns: 2fr 80px 100px 80px 32px;
+  gap: 8px;
+  padding: 0 4px 6px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  margin-bottom: 8px;
+}
+
+.items-header span {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 2fr 80px 100px 80px 32px;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.item-row__amount {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: right;
+}
+
+.item-row__remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 16px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.item-row__remove:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ── Totals strip ──────────────────────────────── */
+.invoice-totals {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 0 0;
+  border-top: 0.5px solid rgba(0,0,0,0.08);
+  margin-top: 1rem;
+}
+
+.invoice-totals__row {
+  display: flex;
+  gap: 24px;
+  align-items: baseline;
+}
+
+.invoice-totals__label {
+  font-size: 13px;
+  color: #666;
+}
+
+.invoice-totals__value {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+}
+
+/* ── Buttons ───────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 0.5px solid rgba(0,0,0,0.18);
+  background: transparent;
+  color: #1a1a1a;
+  transition: background 0.12s, transform 0.08s;
+}
+
+.btn:hover { background: #f5f4f1; }
+.btn:active { transform: scale(0.98); }
+
+.btn--primary {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn--primary:hover { background: #333; }
+
+.btn--primary:disabled {
+  background: #888;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--ghost {
+  border: none;
+  background-color: #ff0000;
+  color:white;
+  font-size: 13px;
+  height: 30px;
+  padding: 0 10px;
+}
+
+.btn--ghost:hover { background: #c40202; }
+
+.btn--danger { color: #b91c1c; }
+.btn--danger:hover { background: #fee2e2; border-color: #fca5a5; }
+
+/* ── Form actions row ──────────────────────────── */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+/* ── Invoice list ──────────────────────────────── */
+.invoice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invoice-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+
+.invoice-item:hover {
+  border-color: rgba(0,0,0,0.25);
+}
+
+.invoice-item__number {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.invoice-item__meta {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.invoice-item__total {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+/* ── Empty state ───────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* ── Divider ───────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 0.5px solid rgba(0,0,0,0.08);
+}
+
+/* ── Responsive ────────────────────────────────── */
+@media (max-width: 600px) {
+  .dashboard-content { padding: 1.5rem 1rem; }
+  .client-fields { grid-template-columns: 1fr; }
+  .item-row,
+  .items-header {
+    grid-template-columns: 1fr 60px 80px 60px 32px;
+  }
+}
