@@ -10,18 +10,24 @@ export default function App() {
   useEffect(() => {
     let mounted = true;
 
-    // 🔥 INIT USER (safe)
+    // ✅ FIX: use getSession instead of getUser
     const init = async () => {
       try {
-        const { data, error } = await supabase.auth.getUser();
-
-        if (error) {
-          console.error("Auth error:", error);
-        }
+        const { data } = await supabase.auth.getSession();
 
         if (!mounted) return;
 
-        setUser(data?.user ?? null);
+        const session = data.session;
+        const u = session?.user ?? null;
+
+        setUser(u);
+
+        // 🔥 Sync user safely
+        if (u) {
+          setTimeout(() => {
+            syncUser(u);
+          }, 0);
+        }
       } catch (err) {
         console.error("Init error:", err);
       } finally {
@@ -42,7 +48,7 @@ export default function App() {
         return u;
       });
 
-      // 🔥 SYNC USER (no lock issues)
+      // 🔥 Sync user (no lock issues)
       if (u) {
         setTimeout(() => {
           syncUser(u);
@@ -56,7 +62,7 @@ export default function App() {
     };
   }, []);
 
-  // 🔥 SYNC USER (safe + no crash)
+  // 🔥 SYNC USER
   async function syncUser(authUser) {
     try {
       const { error } = await supabase
