@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { supabase } from "./lib/supabase.js";
+import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
 import Dashboard from "./Dashboard.jsx";
 import Login from "./Login.jsx";
 
@@ -7,75 +7,80 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ prevent duplicate sync calls
-  const syncedRef = useRef(false);
-
   useEffect(() => {
-    // 🔥 Get current session
+    let mounted = true;
+
+    // 🔥 INIT USER (safe)
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const { data, error } = await supabase.auth.getUser();
 
-      const u = session?.user ?? null;
-      setUser(u);
+        if (error) {
+          console.error("Auth error:", error);
+        }
 
-      if (u && !syncedRef.current) {
-        await syncUser(u);
-        syncedRef.current = true;
+        if (!mounted) return;
+
+        setUser(data?.user ?? null);
+      } catch (err) {
+        console.error("Init error:", err);
+      } finally {
+        if (mounted) setLoading(false);
       }
-
-      setLoading(false);
     };
 
     init();
 
-    // 🔥 Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const u = session?.user ?? null;
+    // 🔥 AUTH LISTENER
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user ?? null;
 
-        setUser((prev) => {
-          if (prev?.id === u?.id) return prev; // ✅ avoid re-render loop
-          return u;
-        });
+      setUser((prev) => {
+        if (prev?.id === u?.id) return prev;
+        return u;
+      });
 
-        if (u && !syncedRef.current) {
-          await syncUser(u);
-          syncedRef.current = true;
-        }
-
-        // 🔥 reset flag on logout
-        if (!u) {
-          syncedRef.current = false;
-        }
+      // 🔥 SYNC USER (no lock issues)
+      if (u) {
+        setTimeout(() => {
+          syncUser(u);
+        }, 0);
       }
-    );
+    });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // 🔥 Sync user to DB
+  // 🔥 SYNC USER (safe + no crash)
   async function syncUser(authUser) {
-    const { error } = await supabase
-      .from("users")
-      .upsert(
-        {
-          id: authUser.id,
-          email: authUser.email,
-          name: authUser.user_metadata?.full_name ?? null,
-        },
-        { onConflict: "id" }
-      );
+    try {
+      const { error } = await supabase
+        .from("users")
+        .upsert(
+          {
+            id: authUser.id,
+            email: authUser.email,
+            name: authUser.user_metadata?.full_name ?? null,
+          },
+          { onConflict: "id" }
+        );
 
-    if (error) {
-      console.error("User sync error:", error);
+      if (error) throw error;
+    } catch (err) {
+      console.error("User sync error:", err);
     }
   }
 
-  // 🔥 Loading UI
+  // 🔥 LOADING UI
   if (loading) {
     return <div style={{ padding: 40 }}>Loading...</div>;
   }
 
-  // 🔥 Auth routing
+  // 🔥 ROUTING
   return user ? <Dashboard user={user} /> : <Login />;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./lib/supabase";
+import { supabase } from "./lib/supabase.js";
 import "./Dashboard.css";
 
 export default function Dashboard({ user }) {
@@ -45,16 +45,26 @@ useEffect(() => {
   }
 
   async function fetchInvoiceItems() {
-    const { data, error } = await supabase
-      .from("invoice_items")
-      .select("description")
-      .not("description", "is", null);
+  const { data, error } = await supabase
+    .from("invoice_items")
+    .select("description");
 
-    if (error) console.error("Error fetching invoice items:", error);
-
-    const unique = [...new Set((data || []).map((i) => i.description?.trim()).filter(Boolean))];
-    setItemOptions(unique);
+  if (error) {
+    console.error("Error fetching invoice items:", error);
+    return;
   }
+
+  const unique = [
+    ...new Set(
+      (data || [])
+        .map((i) => i.description?.trim())
+        .filter((d) => d && d.length > 0)
+    ),
+  ];
+
+
+  setItemOptions(unique);
+}
 
 async function fetchInvoices() {
   const { data, error } = await supabase
@@ -70,7 +80,6 @@ async function fetchInvoices() {
     return;
   }
 
-  console.log("Invoices:", data);
   setInvoices(data || []);
 }
 
