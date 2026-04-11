@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proforma Invoice - Livit Interiors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #000;
+            background-color: #f0f0f0;
+        }
+
+        .invoice-container {
+            width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 4px 8px;
+            font-size: 13px;
+            height: 22px;
+        }
+
+        /* Header Styles */
+        .header-dark {
+            background-color: #2c3e50;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .header-sub {
+            background-color: #e0e6ed;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        .right-text {
+            text-align: right;
+        }
+
+        /* Column Widths */
+        .col-desc { width: 35%; }
+        .col-hsn { width: 8%; }
+        .col-qty { width: 6%; }
+        .col-unit { width: 6%; }
+        .col-price { width: 8%; }
+        .col-val { width: 8%; }
+        .col-tax { width: 14%; }
+        .col-gst { width: 7%; }
+
+        /* Specific Sections */
+        .gray-bar {
+            background-color: #bdc3c7;
+            height: 15px;
+        }
+
+        .total-row {
+            background-color: #bdc3c7;
+            font-weight: bold;
+        }
+
+        .declaration-box {
+            font-size: 11px;
+            vertical-align: top;
+            padding-top: 10px;
+        }
+
+        .signatory-box {
+            text-align: center;
+            vertical-align: bottom;
+            height: 100px;
+        }
+
+        .no-border-bottom { border-bottom: none; }
+        .no-border-top { border-top: none; }
+    </style>
+</head>
+<body>
+
+<div class="invoice-container">
+    <table>
+        <tr>
+            <td colspan="12" class="header-dark">PROFORMA INVOICE</td>
+        </tr>
+        <tr>
+            <td colspan="12" class="header-sub">LIVIT INTERIORS PRIVATE LIMITED</td>
+        </tr>
+        <tr>
+            <td colspan="12" class="center-text">
+                4144 A. No.1 Villa, Aikkarakunnel, 4 Seasons, Fr Manuel Road, Kaloor, Kochi<br>
+                PIN Code: 682017
+            </td>
+        </tr>
+        <tr>
+            <td colspan="12" class="center-text">GSTIN: 32AAFCL5089C1ZO</td>
+        </tr>
+
+        <tr>
+            <td colspan="6">Job No J 359</td>
+            <td colspan="2" class="center-text">Place of work</td>
+            <td colspan="2"></td>
+            <td>Invoice no.</td>
+            <td>Date</td>
+        </tr>
+        <tr>
+            <td colspan="6" rowspan="2" style="vertical-align: top;">
+                Bill to,<br>
+                <strong>Suhaib</strong>
+            </td>
+            <td colspan="2" rowspan="2" class="center-text">Pala</td>
+            <td colspan="2" rowspan="2"></td>
+            <td class="center-text">362</td>
+            <td class="center-text">6/3/26</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr class="header-sub">
+            <td class="col-desc">Description</td>
+            <td class="col-hsn">HSN code</td>
+            <td class="col-qty">QTY</td>
+            <td class="col-unit">Unit</td>
+            <td class="col-price">Unit Price</td>
+            <td class="col-val">Gross Value</td>
+            <td class="col-qty">Disc</td>
+            <td colspan="2" class="center-text">Taxable Value</td>
+            <td class="col-gst">CGST</td>
+            <td class="col-gst">SGST</td>
+            <td>Total</td>
+        </tr>
+
+        <tr>
+            <td>Plywood Pressing BSL</td>
+            <td></td>
+            <td class="center-text">8</td>
+            <td class="center-text">nos</td>
+            <td class="right-text">600</td>
+            <td></td>
+            <td></td>
+            <td colspan="2" class="right-text">4,800.0</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Plywood Pressing OSL</td>
+            <td></td>
+            <td class="center-text">3</td>
+            <td class="center-text">nos</td>
+            <td class="right-text">300</td>
+            <td></td>
+            <td></td>
+            <td colspan="2" class="right-text">900.0</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Edgebanding 2x22</td>
+            <td></td>
+            <td class="center-text">48</td>
+            <td class="center-text">m</td>
+            <td class="right-text">55</td>
+            <td></td>
+            <td></td>
+            <td colspan="2" class="right-text">2,640.0</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr class="gray-bar">
+            <td colspan="12"></td>
+        </tr>
+
+        <tr>
+            <td colspan="3">Bank name</td>
+            <td colspan="5"></td>
+            <td colspan="3">TAXABLE AMOUNT</td>
+            <td class="right-text">8,340.0</td>
+        </tr>
+        <tr>
+            <td colspan="3">Account name</td>
+            <td colspan="5"></td>
+            <td colspan="3">Add CGST 9%</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3">Account no.</td>
+            <td colspan="5"></td>
+            <td colspan="3">Add SGST 9%</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3">IFSC</td>
+            <td colspan="5"></td>
+            <td colspan="3"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3">Branch</td>
+            <td colspan="5"></td>
+            <td colspan="3"></td>
+            <td></td>
+        </tr>
+
+        <tr class="total-row">
+            <td colspan="11" class="center-text">Eight Thousand Three Hundred and Forty Rupees Only</td>
+            <td class="right-text">8,340</td>
+        </tr>
+
+        <tr>
+            <td colspan="8" class="declaration-box">
+                Declaration : WE CERTIFY THAT ALL THE PARTICULARS SHOWN IN THE ABOVE INVOICE ARE TRUE AND CORRECT
+            </td>
+            <td colspan="4" class="signatory-box">
+                For Livit Interiors<br><br><br><br>
+                Authorised Signatory
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
