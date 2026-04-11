@@ -64,7 +64,7 @@ body {
   letter-spacing: -0.4px;
 }
 
-.nav__brand span { color: var(--accent); }
+
 
 .nav__right {
   display: flex;
@@ -317,7 +317,7 @@ textarea {
   border-color: var(--ink);
   color: #fff;
 }
-.btn--primary:hover { background: #2a2a2a; border-color: #2a2a2a; }
+.btn--primary:hover { background: #ff0000; border-color: #2a2a2a; }
 
 .btn--accent {
   background: var(--accent);
@@ -749,8 +749,21 @@ textarea {
 }
 
 .modal__close:hover { background: var(--line); color: var(--text); }
-svg{
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-text {
+  color: white;
+  font-weight: 800;
+  font-size: 22px;
+}
+#logo{
   transform:scale(0.5);
+  margin-top:10px;
 }
 /* ─────────────────────────────────────────
    RESPONSIVE

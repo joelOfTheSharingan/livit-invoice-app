@@ -315,14 +315,14 @@ export default function Dashboard({ user }) {
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
       {/* NAV */}
       <nav className="nav">
-        <div className="nav__brand">   
+        <div className="nav__brand">
+  <svg id="logo" viewBox="-2 -20 40 44" width="70" xmlns="http://www.w3.org/2000/svg">
+    <path d="M -1 1 L 20 23 L 24 19 L 7 1 L 24 -16 L 20 -20 Z" fill="#E53935"/>
+    <path d="M 11 1 L 26 -14 L 30 -10 L 25 -5 L 37 7 L 33 11 L 21 -1 L 19 1 L 31 13 L 27 17 Z" fill="#E53935"/>
+  </svg>
 
-          <svg viewBox="-2 -20 40 44" width="70" xmlns="http://www.w3.org/2000/svg">
-          <path d="M -1 1 L 20 23 L 24 19 L 7 1 L 24 -16 L 20 -20 Z" fill="#E53935"/>
-          <path d="M 11 1 L 26 -14 L 30 -10 L 25 -5 L 37 7 L 33 11 L 21 -1 L 19 1 L 31 13 L 27 17 Z" fill="#E53935"/>
-        </svg>
-        
-        </div>
+  <span className="brand-text">Livit Interiors</span>
+</div>
         <div className="nav__right">
           <div className="nav__user">
             <div className="nav__avatar">{avatarLetter}</div>
@@ -357,7 +357,6 @@ export default function Dashboard({ user }) {
             <div className="card">
               <div className="card__head">
                 Invoice Details
-                <span className="card__head-tag">Phase 2</span>
               </div>
               <div className="grid4">
                 <div className="field">
@@ -477,7 +476,7 @@ export default function Dashboard({ user }) {
             <div className="card">
               <div className="card__head">
                 Line Items
-                <span className="card__head-tag">Phase 3 · 4</span>
+                
               </div>
 
               {/* GST Toggle */}
