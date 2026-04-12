@@ -9,20 +9,14 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   try {
-    console.log("START");
-
     const { id } = req.query;
 
     if (!id) {
       return res.status(400).send("Missing invoice ID");
     }
 
-    console.log("ID:", id);
-
-    // =========================
-    // FETCH INVOICE
-    // =========================
-    const { data: invoice, error } = await supabase
+    // 1. Fetch Invoice + Client Data
+    const { data: invoice, error: invError } = await supabase
       .from("invoices")
       .select(`
         *,
@@ -42,78 +36,162 @@ export default async function handler(req, res) {
       .eq("id", id)
       .single();
 
-    if (error || !invoice) {
-      console.log("INVOICE ERROR:", error);
+    if (invError || !invoice) {
       return res.status(404).send("Invoice not found");
     }
 
-    // =========================
-    // FETCH ITEMS
-    // =========================
+    // 2. Fetch Invoice Items
     const { data: items } = await supabase
       .from("invoice_items")
       .select("*")
       .eq("invoice_id", id);
 
-    console.log("ITEMS:", items?.length);
-
-    // =========================
-    // BUILD ROWS (SAFE)
-    // =========================
+    // 3. Build Table Rows (matching your detailed old template)
     const rows = (items || [])
       .map((item) => {
-        const qty = Number(item.qty || 0);
-        const price = Number(item.unit_price || 0);
-        const taxable = Number(item.taxable_value || 0);
-        const cgst = Number(item.cgst_amount || 0);
-        const sgst = Number(item.sgst_amount || 0);
-
-        const total = taxable + cgst + sgst;
+        const rowTotal = 
+          Number(item.taxable_value || 0) + 
+          Number(item.cgst_amount || 0) + 
+          Number(item.sgst_amount || 0);
 
         return `
         <tr>
-          <td>${item.description || ""}</td>
-          <td>${qty}</td>
-          <td>${price.toFixed(2)}</td>
-          <td>${total.toFixed(2)}</td>
+          <td style="text-align: left;">${item.description || ""}</td>
+          <td class="center-text">${item.hsn_code || ""}</td>
+          <td class="center-text">${item.qty || ""}</td>
+          <td class="center-text">${item.unit || ""}</td>
+          <td class="right-text">${Number(item.unit_price || 0).toFixed(2)}</td>
+          <td class="right-text">${Number(item.gross_value || 0).toFixed(2)}</td>
+          <td class="right-text">${item.discount || 0}%</td>
+          <td colspan="2" class="right-text">${Number(item.taxable_value || 0).toFixed(2)}</td>
+          <td class="right-text">${Number(item.cgst_amount || 0).toFixed(2)}</td>
+          <td class="right-text">${Number(item.sgst_amount || 0).toFixed(2)}</td>
+          <td class="right-text">${rowTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
         </tr>
         `;
       })
       .join("");
 
-    // =========================
-    // SIMPLE HTML (SAFE FIRST)
-    // =========================
+    // 4. Detailed HTML Template
     const html = `
-      <html>
-      <body style="font-family: Arial; padding: 20px;">
-        <h2>Invoice ${invoice.invoice_number || ""}</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fff; }
+        .invoice-container { width: 100%; border: 1px solid #000; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        td, th { border: 1px solid #000; padding: 6px; font-size: 11px; word-wrap: break-word; }
+        .header-dark { background: #2c3e50; color: #fff; text-align: center; font-weight: bold; font-size: 14px; }
+        .header-sub { background: #e0e6ed; text-align: center; font-weight: bold; font-size: 12px; }
+        .center-text { text-align: center; }
+        .right-text { text-align: right; }
+        .gray-bar { background: #bdc3c7; height: 18px; }
+        .total-row { background: #bdc3c7; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <table>
+        <tr><td colspan="12" class="header-dark">PROFORMA INVOICE</td></tr>
+        <tr><td colspan="12" class="header-sub">LIVIT INTERIORS PRIVATE LIMITED</td></tr>
+        <tr>
+            <td colspan="12" class="center-text">
+                4144 A. No.1 Villa, Aikkarakunnel, 4 Seasons, Fr Manuel Road, Kaloor, Kochi<br>
+                PIN Code: 682017 | GSTIN: 32AAFCL5089C1ZO
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" rowspan="2" style="vertical-align: top;">
+                Bill to,<br>
+                <strong>${invoice.clients?.name || "N/A"}</strong><br>
+                ${invoice.clients?.address || ""}<br>
+                ${invoice.clients?.state || ""} ${invoice.clients?.place_of_supply || ""}<br>
+                ${invoice.clients?.gst_no ? "GST: " + invoice.clients.gst_no : ""}
+            </td>
+            <td colspan="2" class="center-text">Job No</td>
+            <td colspan="2" class="center-text">${invoice.job_number || "N/A"}</td>
+            <td>Invoice no.</td>
+            <td>Date</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="center-text">Work Place</td>
+            <td colspan="2" class="center-text">${invoice.place_of_work || ""}</td>
+            <td class="center-text">${invoice.invoice_number}</td>
+            <td class="center-text">${invoice.invoice_date || ""}</td>
+        </tr>
 
-        <p><strong>Client:</strong> ${invoice.clients?.name || ""}</p>
-        <p><strong>Address:</strong> ${invoice.clients?.address || ""}</p>
+        <tr class="header-sub">
+            <td style="width:30%">Description</td>
+            <td style="width:8%">HSN</td>
+            <td style="width:6%">QTY</td>
+            <td style="width:6%">Unit</td>
+            <td style="width:9%">Price</td>
+            <td style="width:9%">Gross</td>
+            <td style="width:6%">Disc</td>
+            <td colspan="2" style="width:11%">Taxable</td>
+            <td style="width:7%">CGST</td>
+            <td style="width:7%">SGST</td>
+            <td style="width:10%">Total</td>
+        </tr>
 
-        <table border="1" cellspacing="0" cellpadding="6" width="100%">
-          <tr>
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
-          </tr>
-          ${rows}
-        </table>
+        ${rows}
 
-        <h3>Total: ₹${Number(invoice.grand_total || 0).toFixed(2)}</h3>
-      </body>
-      </html>
-    `;
+        <tr class="gray-bar"><td colspan="12"></td></tr>
 
-    // =========================
-    // GENERATE PDF
-    // =========================
+        <tr>
+            <td colspan="3">Bank name:</td>
+            <td colspan="5">${invoice.clients?.bank_name || "N/A"}</td>
+            <td colspan="3">TAXABLE AMOUNT</td>
+            <td class="right-text">${Number(invoice.taxable_amount || 0).toFixed(2)}</td>
+        </tr>
+        <tr>
+            <td colspan="3">Account name:</td>
+            <td colspan="5">${invoice.clients?.account_name || "N/A"}</td>
+            <td colspan="3">Add CGST</td>
+            <td class="right-text">${Number(invoice.cgst_total || 0).toFixed(2)}</td>
+        </tr>
+        <tr>
+            <td colspan="3">Account no:</td>
+            <td colspan="5">${invoice.clients?.account_no || "N/A"}</td>
+            <td colspan="3">Add SGST</td>
+            <td class="right-text">${Number(invoice.sgst_total || 0).toFixed(2)}</td>
+        </tr>
+        <tr>
+            <td colspan="3">IFSC:</td>
+            <td colspan="5">${invoice.clients?.ifsc || "N/A"}</td>
+            <td colspan="3">Round Off</td>
+            <td class="right-text">${Number(invoice.round_off || 0).toFixed(2)}</td>
+        </tr>
+
+        <tr class="total-row">
+            <td colspan="11" class="center-text">${invoice.amount_in_words || ""}</td>
+            <td class="right-text">₹ ${Number(invoice.grand_total || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+        </tr>
+
+        <tr>
+            <td colspan="8" style="vertical-align: top; padding: 10px; font-size: 10px;">
+                <strong>Declaration:</strong><br>
+                WE CERTIFY THAT ALL THE PARTICULARS SHOWN IN THE ABOVE INVOICE ARE TRUE AND CORRECT
+            </td>
+            <td colspan="4" style="text-align: center; vertical-align: top; height: 80px;">
+                For Livit Interiors<br><br><br><br>
+                <strong>Authorised Signatory</strong>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
+`;
+
+    // 5. PDF Generation with Chromium (Serverless Optimized)
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath(),
-      headless: true,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
@@ -122,27 +200,17 @@ export default async function handler(req, res) {
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
+      margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' }
     });
 
     await browser.close();
 
-    // =========================
-    // SEND PDF
-    // =========================
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `inline; filename=Invoice_${invoice.invoice_number}.pdf`
-    );
-
-    res.end(pdf);
+    res.setHeader("Content-Disposition", `inline; filename=Invoice_${invoice.invoice_number}.pdf`);
+    res.send(pdf);
 
   } catch (err) {
-    console.error("ERROR:", err);
-
-    return res.status(500).send(`
-      <h1>SERVER ERROR</h1>
-      <pre>${err.stack}</pre>
-    `);
+    console.error("PDF Generation Error:", err);
+    res.status(500).send(`Error generating PDF: ${err.message}`);
   }
 }
