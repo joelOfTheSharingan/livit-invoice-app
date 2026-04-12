@@ -721,8 +721,17 @@ export default function Dashboard({ user }) {
                         </span>
                       </td>
                       <td className="num" style={{ fontWeight: 600 }}>₹{fmt(inv.grand_total)}</td>
-                      <td className="num">
-                        <a href={`https://livit-invoice-app.vercel.app/api/invoice?id=${inv.id}`} target="_blank" rel="noreferrer" className="btn btn--sm">
+                     <td className="num">
+                        <a
+                          href={
+                            import.meta.env.DEV
+                              ? `http://localhost:5001/invoice/${inv.id}`
+                              : `https://livit-invoice-app.vercel.app/api/invoice?id=${inv.id}`
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn--sm"
+                        >
                           📄 PDF
                         </a>
                       </td>
