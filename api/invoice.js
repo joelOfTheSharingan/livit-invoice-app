@@ -107,7 +107,7 @@ const html = `
 
 <div style="text-align: center; padding: 10px;">
         <img 
-            src="image.png" 
+            src="https://raw.githubusercontent.com/joelOfTheSharingan/livit-invoice-app/refs/heads/main/api/image.png" 
             alt="Company Logo" 
             style="max-height: 80px;"
         />
