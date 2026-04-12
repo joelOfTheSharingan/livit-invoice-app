@@ -81,6 +81,13 @@ const html = `
     <meta charset="UTF-8" />
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fff; }
+    img {
+  transform: scale(3);
+  padding-top: 40px;
+  margin-bottom: 100px;
+  display: block;
+  margin-left: auto;
+}
         .invoice-container { width: 850px; margin: auto; border: 1px solid #000; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         td, th { border: 1px solid #000; padding: 6px; font-size: 11px; word-wrap: break-word; }
@@ -97,7 +104,15 @@ const html = `
 </head>
 <body>
 
-<div class="invoice-container">
+
+<div style="text-align: center; padding: 10px;">
+        <img 
+            src="image.png" 
+            alt="Company Logo" 
+            style="max-height: 80px;"
+        />
+    </div>
+    <div class="invoice-container"></div>
     <table>
         <tr><td colspan="12" class="header-dark">PROFORMA INVOICE</td></tr>
         <tr><td colspan="12" class="header-sub">LIVIT INTERIORS PRIVATE LIMITED</td></tr>
