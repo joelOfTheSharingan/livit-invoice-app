@@ -223,12 +223,12 @@ app.get("/invoice/:id", async (req, res) => {
   <td colspan="4" style="padding: 0;">
     <table style="width:100%; border-collapse: collapse; height:100%;">
       <tr>
-  <td style="text-align: center; vertical-align: top; height: 20px; border-bottom: 1px solid #000;">
+  <td style="text-align: center; vertical-align: top; height: 10px; border-bottom: 1px solid #000;">
     For Livit Interiors
   </td>
 </tr>
 <tr>
-  <td style="text-align: center; vertical-align: bottom; height: 50px;">
+  <td style="text-align: center; vertical-align: bottom; height: 70px;">
     Authorised Signatory
   </td>
 </tr>
