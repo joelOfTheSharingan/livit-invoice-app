@@ -722,7 +722,7 @@ export default function Dashboard({ user }) {
                       </td>
                       <td className="num" style={{ fontWeight: 600 }}>₹{fmt(inv.grand_total)}</td>
                       <td className="num">
-                        <a href={`https://tainted-condone-brush.ngrok-free.dev/invoice/${inv.id}`} target="_blank" rel="noreferrer" className="btn btn--sm">
+                        <a href={`https://livit-invoice-app.vercel.app/api/invoice?id=${inv.id}`} target="_blank" rel="noreferrer" className="btn btn--sm">
                           📄 PDF
                         </a>
                       </td>
