@@ -83,11 +83,11 @@ const html = `
         body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fff; }
     img {
   transform: scale(3);
-  padding-top: 40px;
+  padding-top: 30px;
   margin-bottom: 100px;
   display: block;
   margin-left: auto;
-  margin-right:170px;
+  margin-right:140px;
   padding-bottom: 20px;
 }
         .invoice-container { width: 850px; margin: auto; border: 1px solid #000; }
