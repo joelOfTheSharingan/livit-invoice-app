@@ -87,7 +87,7 @@ const html = `
   margin-bottom: 100px;
   display: block;
   margin-left: auto;
-  margin-right:200px;
+  margin-right:170px;
   padding-bottom: 20px;
 }
         .invoice-container { width: 850px; margin: auto; border: 1px solid #000; }
