@@ -485,23 +485,7 @@ export default function Dashboard({ user }) {
                   <input type="checkbox" checked={useGST} onChange={e => setUseGST(e.target.checked)} />
                   Apply GST
                 </label>
-                {useGST && (
-                  <div className="gst-inputs">
-                    <div className="field">
-                      <label>CGST %</label>
-                      <input type="number" value={computed[0]?.cgst_rate ?? 9} min="0" max="14"
-                        onChange={e => setItems(p => p.map(it => ({ ...it, cgst_rate: Number(e.target.value) })))} />
-                    </div>
-                    <div className="field">
-                      <label>SGST %</label>
-                      <input type="number" value={computed[0]?.sgst_rate ?? 9} min="0" max="14"
-                        onChange={e => setItems(p => p.map(it => ({ ...it, sgst_rate: Number(e.target.value) })))} />
-                    </div>
-                    <div className="gst-rate-display">
-                      Total GST: {(computed[0]?.cgst_rate ?? 9) + (computed[0]?.sgst_rate ?? 9)}%
-                    </div>
-                  </div>
-                )}
+                
               </div>
 
               {/* Items Table */}
@@ -601,17 +585,59 @@ export default function Dashboard({ user }) {
                     <span className="totals-value">₹{fmt(taxableTotal)}</span>
                   </div>
                   {useGST && (
-                    <>
-                      <div className="totals-row">
-                        <span className="totals-label">CGST ({computed[0]?.cgst_rate ?? 9}%)</span>
-                        <span className="totals-value">₹{fmt(cgstTotal)}</span>
-                      </div>
-                      <div className="totals-row">
-                        <span className="totals-label">SGST ({computed[0]?.sgst_rate ?? 9}%)</span>
-                        <span className="totals-value">₹{fmt(sgstTotal)}</span>
-                      </div>
-                    </>
-                  )}
+  <>
+    <div className="totals-row">
+      <span className="totals-label">
+        CGST %
+        <input
+          type="number"
+          value={computed[0]?.cgst_rate ?? 9}
+          min="0"
+          max="14"
+          style={{ width: 60, marginLeft: 8 }}
+          onChange={e =>
+            setItems(p =>
+              p.map(it => ({
+                ...it,
+                cgst_rate: Number(e.target.value)
+              }))
+            )
+          }
+        />
+      </span>
+      <span className="totals-value">₹{fmt(cgstTotal)}</span>
+    </div>
+
+    <div className="totals-row">
+      <span className="totals-label">
+        SGST %
+        <input
+          type="number"
+          value={computed[0]?.sgst_rate ?? 9}
+          min="0"
+          max="14"
+          style={{ width: 60, marginLeft: 8 }}
+          onChange={e =>
+            setItems(p =>
+              p.map(it => ({
+                ...it,
+                sgst_rate: Number(e.target.value)
+              }))
+            )
+          }
+        />
+      </span>
+      <span className="totals-value">₹{fmt(sgstTotal)}</span>
+    </div>
+
+    <div className="totals-row">
+      <span className="totals-label">Total GST</span>
+      <span className="totals-value">
+        {(computed[0]?.cgst_rate ?? 0) + (computed[0]?.sgst_rate ?? 0)}%
+      </span>
+    </div>
+  </>
+)}
                   {roundOff && (
                     <div className="totals-row">
                       <span className="totals-label">
