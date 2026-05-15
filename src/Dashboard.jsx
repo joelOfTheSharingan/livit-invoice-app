@@ -102,6 +102,7 @@ export default function Dashboard({ user }) {
   async function fetchClients() {
     // Upgraded: Fetching full bank and address details for auto-fill
     const { data, error } = await supabase
+      .schema("livit")
       .from("clients")
       .select("id, name, gst_no, email, phone, address, state, place_of_supply, bank_name, account_name, account_no, ifsc, branch")
       .order("name");
@@ -109,7 +110,7 @@ export default function Dashboard({ user }) {
   }
 
   async function fetchItemDescriptions() {
-    const { data, error } = await supabase.from("invoice_items").select("description");
+    const { data, error } = await supabase.schema("livit").from("invoice_items").select("description");
     if (!error) {
       const unique = [...new Set((data||[]).map(i => i.description?.trim()).filter(Boolean))];
       setItemOptions(unique);
@@ -118,6 +119,7 @@ export default function Dashboard({ user }) {
 
   async function fetchInvoices() {
     const { data, error } = await supabase
+      .schema("livit")
       .from("invoices")
       .select("*, clients(name)")
       .order("created_at", { ascending: false });
@@ -197,6 +199,7 @@ export default function Dashboard({ user }) {
     if (isNewClient) {
       if (!client.name.trim()) { showToast("Client name required", "error"); setLoading(false); return; }
       const { data, error } = await supabase
+        .schema("livit")
         .from("clients")
         .insert([{
           name: client.name, 
@@ -246,6 +249,7 @@ export default function Dashboard({ user }) {
     };
 
     const { data: invData, error: invErr } = await supabase
+      .schema("livit")
       .from("invoices").insert([invoicePayload]).select();
 
     if (invErr || !invData?.[0]) {
@@ -272,7 +276,7 @@ export default function Dashboard({ user }) {
       amount: it.amount,
     }));
 
-    const { error: itemErr } = await supabase.from("invoice_items").insert(itemsPayload);
+    const { error: itemErr } = await supabase.schema("livit").from("invoice_items").insert(itemsPayload);
     if (itemErr) showToast("Items save failed", "error");
 
     const clientObj = clientOptions.find(c => c.id === clientId) || { name: client.name };
@@ -294,7 +298,19 @@ export default function Dashboard({ user }) {
     setItems([blankItem()]);
   }
 
-  async function logout() { await supabase.auth.signOut(); }
+  async function logout() {
+    await supabase.auth.signOut();
+
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    const HOME_URL = isLocal
+      ? "http://localhost:3000/home/login"
+      : "https://joelofthesharingan.github.io/home/login";
+
+    window.location.href = HOME_URL;
+  }
 
   // ─── Filtered Invoices ──────────────────────────────────
   const filteredInvoices = invoices.filter(inv => {

@@ -28,7 +28,55 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 app.get("/", (req, res) => {
   res.send("Server working ✅");
 });
+app.get("/test-invoices", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .schema("livit")
+      .from("invoices")
+      .select(`
+        *,
+        clients (
+          *
+        )
+      `);
 
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        error,
+      });
+    }
+
+    const invoicesWithItems = await Promise.all(
+      data.map(async (invoice) => {
+        const { data: items } = await supabase
+          .schema("livit")
+          .from("invoice_items")
+          .select("*")
+          .eq("invoice_id", invoice.id);
+
+        return {
+          ...invoice,
+          items,
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      count: invoicesWithItems.length,
+      invoices: invoicesWithItems,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
 /* =========================
    INVOICE API (JSON + PDF)
 ========================= */
@@ -39,6 +87,7 @@ app.get("/invoice/:id", async (req, res) => {
 
     // 1. GET INVOICE + DYNAMIC CLIENT DATA
     const { data: invoice, error: invError } = await supabase
+      .schema("livit")
       .from("invoices")
       .select(`
         *,
@@ -57,10 +106,14 @@ app.get("/invoice/:id", async (req, res) => {
       `)
       .eq("id", id)
       .single();
+console.log("Invoice ID:", id);
 
+console.log("Invoice:", invoice);
+console.log("Invoice Error:", invError);
     if (invError || !invoice) return res.status(404).send("Invoice not found");
 
     const { data: items } = await supabase
+      .schema("livit")
       .from("invoice_items")
       .select("*")
       .eq("invoice_id", id);
@@ -102,6 +155,15 @@ app.get("/invoice/:id", async (req, res) => {
     <meta charset="UTF-8" />
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fff; }
+    img {
+  transform: scale(3);
+  padding-top: 30px;
+  margin-bottom: 100px;
+  display: block;
+  margin-left: auto;
+  margin-right:140px;
+  padding-bottom: 20px;
+}
         .invoice-container { width: 850px; margin: auto; border: 1px solid #000; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         td, th { border: 1px solid #000; padding: 6px; font-size: 11px; word-wrap: break-word; }
@@ -113,12 +175,31 @@ app.get("/invoice/:id", async (req, res) => {
         .total-row { background: #bdc3c7; font-weight: bold; }
         .declaration-box { font-size: 10px; vertical-align: top; padding: 10px; border-bottom: 1px solid #000; }
         .signatory-box { text-align: center; vertical-align: top; padding-top: 5px; height: 60px; }
+        .totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totals-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
         .signature-line { border-top: 1px solid #000; font-weight: bold; padding-top: 5px; }
     </style>
 </head>
 <body>
 
-<div class="invoice-container">
+
+<div style="text-align: center; padding: 10px;">
+        <img 
+            src="https://raw.githubusercontent.com/joelOfTheSharingan/livit-invoice-app/refs/heads/main/api/image.png" 
+            alt="Company Logo" 
+            style="max-height: 80px;"
+        />
+    </div>
+    <div class="invoice-container"></div>
     <table>
         <tr><td colspan="12" class="header-dark">PROFORMA INVOICE</td></tr>
         <tr><td colspan="12" class="header-sub">LIVIT INTERIORS PRIVATE LIMITED</td></tr>

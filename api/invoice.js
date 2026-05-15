@@ -17,6 +17,7 @@ export default async function handler(req, res) {
 
     // ✅ Fetch Invoice
     const { data: invoice, error: invError } = await supabase
+      .schema("livit")
       .from("invoices")
       .select(`
         *,
@@ -43,6 +44,7 @@ export default async function handler(req, res) {
 
     // ✅ Fetch Items
     const { data: items } = await supabase
+      .schema("livit")
       .from("invoice_items")
       .select("*")
       .eq("invoice_id", id);
