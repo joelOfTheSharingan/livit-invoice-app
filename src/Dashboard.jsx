@@ -100,7 +100,6 @@ export default function Dashboard({ user }) {
   }, [user?.id]);
 
   async function fetchClients() {
-    // Upgraded: Fetching full bank and address details for auto-fill
     const { data, error } = await supabase
       .schema("livit")
       .from("clients")
@@ -130,22 +129,20 @@ export default function Dashboard({ user }) {
   function setC(field, val) { setClient(p => ({ ...p, [field]: val })); }
 
   function handleClientSelect(val) {
-    if (val === "NEW") { 
-      setIsNewClient(true); 
-      setSelectedClientId(""); 
-      // Clear state for new entry
+    if (val === "NEW") {
+      setIsNewClient(true);
+      setSelectedClientId("");
       setClient({
         name:"", gst_no:"", email:"", phone:"", address:"",
         state:"", place_of_supply:"",
         bank_name:"", account_name:"", account_no:"", ifsc:"", branch:""
       });
-      return; 
+      return;
     }
-    
+
     setIsNewClient(false);
     setSelectedClientId(val);
 
-    // Auto-fill feature: Load selected client data into state 
     const selected = clientOptions.find(c => String(c.id) === String(val));
     if (selected) {
       setClient({
@@ -187,6 +184,16 @@ export default function Dashboard({ user }) {
   const roundOffAmt   = roundOff ? Math.round(grandRaw) - grandRaw : 0;
   const grandTotal    = grandRaw + roundOffAmt;
 
+  // ─── PDF URL helper ─────────────────────────────────────
+  const isLocal =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+  const getPdfUrl = (id) =>
+    isLocal
+      ? `http://localhost:5001/invoice/${id}`
+      : `https://livit-invoice-app.vercel.app/api/invoice?id=${id}`;
+
   // ─── Create Invoice ─────────────────────────────────────
   async function createInvoice() {
     if (items.some(it => !it.description?.trim())) {
@@ -202,21 +209,21 @@ export default function Dashboard({ user }) {
         .schema("livit")
         .from("clients")
         .insert([{
-          name: client.name, 
-          gst_no: client.gst_no, 
+          name: client.name,
+          gst_no: client.gst_no,
           email: client.email,
-          phone: client.phone, 
+          phone: client.phone,
           address: client.address,
-          state: client.state, 
+          state: client.state,
           place_of_supply: client.place_of_supply,
-          bank_name: client.bank_name, 
+          bank_name: client.bank_name,
           account_name: client.account_name,
-          account_no: client.account_no, 
-          ifsc: client.ifsc, 
+          account_no: client.account_no,
+          ifsc: client.ifsc,
           branch: client.branch
         }])
         .select();
-        
+
       if (error || !data?.[0]?.id) {
         showToast("Failed to create client", "error"); setLoading(false); return;
       }
@@ -257,8 +264,7 @@ export default function Dashboard({ user }) {
     }
 
     const invId = invData[0].id;
-    const c = computed;
-    const itemsPayload = c.map(it => ({
+    const itemsPayload = computed.map(it => ({
       invoice_id: invId,
       description: it.description,
       hsn_code: it.hsn_code || null,
@@ -290,24 +296,27 @@ export default function Dashboard({ user }) {
   function resetForm() {
     setIsNewClient(false);
     setSelectedClientId("");
-    setClient({ name:"", gst_no:"", email:"", phone:"", address:"",
+    setClient({
+      name:"", gst_no:"", email:"", phone:"", address:"",
       state:"", place_of_supply:"",
-      bank_name:"", account_name:"", account_no:"", ifsc:"", branch:"" });
-    setMeta({ invoice_number:"INV-"+Date.now(), invoice_date:new Date().toISOString().slice(0,10),
-      due_date:"", job_number:"", place_of_work:"", notes:"", status:"draft" });
+      bank_name:"", account_name:"", account_no:"", ifsc:"", branch:""
+    });
+    setMeta({
+      invoice_number: "INV-" + Date.now(),
+      invoice_date: new Date().toISOString().slice(0,10),
+      due_date:"", job_number:"", place_of_work:"", notes:"", status:"draft"
+    });
     setItems([blankItem()]);
   }
 
   async function logout() {
     await supabase.auth.signOut();
 
-    const isLocal =
+    const HOME_URL =
       window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-
-    const HOME_URL = isLocal
-      ? "http://localhost:3000/home/login"
-      : "https://joelofthesharingan.github.io/home/login";
+      window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000/home/login"
+        : "https://joelofthesharingan.github.io/home/login";
 
     window.location.href = HOME_URL;
   }
@@ -329,16 +338,16 @@ export default function Dashboard({ user }) {
   return (
     <>
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+
       {/* NAV */}
       <nav className="nav">
         <div className="nav__brand">
-  <svg id="logo" viewBox="-2 -20 40 44" width="70" xmlns="http://www.w3.org/2000/svg">
-    <path d="M -1 1 L 20 23 L 24 19 L 7 1 L 24 -16 L 20 -20 Z" fill="#E53935"/>
-    <path d="M 11 1 L 26 -14 L 30 -10 L 25 -5 L 37 7 L 33 11 L 21 -1 L 19 1 L 31 13 L 27 17 Z" fill="#E53935"/>
-  </svg>
-
-  <span className="brand-text">Livit Interiors</span>
-</div>
+          <svg id="logo" viewBox="-2 -20 40 44" width="70" xmlns="http://www.w3.org/2000/svg">
+            <path d="M -1 1 L 20 23 L 24 19 L 7 1 L 24 -16 L 20 -20 Z" fill="#E53935"/>
+            <path d="M 11 1 L 26 -14 L 30 -10 L 25 -5 L 37 7 L 33 11 L 21 -1 L 19 1 L 31 13 L 27 17 Z" fill="#E53935"/>
+          </svg>
+          <span className="brand-text">Livit Interiors</span>
+        </div>
         <div className="nav__right">
           <div className="nav__user">
             <div className="nav__avatar">{avatarLetter}</div>
@@ -369,11 +378,9 @@ export default function Dashboard({ user }) {
         {/* ══════════ NEW INVOICE TAB ══════════ */}
         {tab === "new" && (
           <>
-            {/* ── PHASE 2: Invoice Metadata ── */}
+            {/* Invoice Details */}
             <div className="card">
-              <div className="card__head">
-                Invoice Details
-              </div>
+              <div className="card__head">Invoice Details</div>
               <div className="grid4">
                 <div className="field">
                   <label>Invoice No.</label>
@@ -393,7 +400,9 @@ export default function Dashboard({ user }) {
                 <div className="field">
                   <label>Status</label>
                   <select value={meta.status} onChange={e => setM("status", e.target.value)}>
-                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+                    {STATUS_OPTIONS.map(s => (
+                      <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="field span2">
@@ -409,102 +418,105 @@ export default function Dashboard({ user }) {
               </div>
             </div>
 
-            {/* ── PHASE 7: Client ── */}      
-
-<div className="card">
-  <div className="card__head">
-    Bill To
-    {isNewClient && (
-      <button className="btn--link" onClick={() => setIsNewClient(false)}>← Select existing</button>
-    )}
-  </div>
-
-  {!isNewClient ? (
-    <div className="client-toggle">
-      <div className="field" style={{ flex: 1, maxWidth: 360 }}>
-        <label>Client</label>
-        <select value={selectedClientId} onChange={e => handleClientSelect(e.target.value)}>
-          <option value="">Select client…</option>
-          {clientOptions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          <option value="NEW">+ Add new client</option>
-        </select>
-      </div>
-    </div>
-  ) : (
-    <>
-      {/* Client Basic Info */}
-      <div className="grid3" style={{ marginBottom: 14 }}>
-        <div className="field span2">
-          <label>Client Name *</label>
-          <input type="text" placeholder="Company or person name" value={client.name} onChange={e => setC("name", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>GST Number</label>
-          <input type="text" placeholder="22AAAAA0000A1Z5" value={client.gst_no} onChange={e => setC("gst_no", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Email</label>
-          <input type="email" placeholder="client@email.com" value={client.email} onChange={e => setC("email", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Phone</label>
-          <input type="text" placeholder="+91 98765 43210" value={client.phone} onChange={e => setC("phone", e.target.value)} />
-        </div>
-        <div className="field span2">
-          <label>Address</label>
-          <input type="text" placeholder="Street, City, PIN" value={client.address} onChange={e => setC("address", e.target.value)} />
-        </div>
-      </div>
-
-      <div className="divider" style={{ margin: '20px 0', borderTop: '1px solid var(--glass-border)' }} />
-
-      {/* Client Bank Details (Mapped to your new columns) */}
-      <div className="card__head" style={{ marginBottom: 14, border: 'none', padding: 0, fontSize: '0.9rem' }}>
-        Client Bank Details (Optional)
-      </div>
-      <div className="grid3">
-        <div className="field">
-          <label>Bank Name</label>
-          <input type="text" placeholder="e.g. HDFC Bank" value={client.bank_name} onChange={e => setC("bank_name", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Account Name</label>
-          <input type="text" placeholder="Name as per bank" value={client.account_name} onChange={e => setC("account_name", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Account Number</label>
-          <input type="number" placeholder="000012345678" value={client.account_no} onChange={e => setC("account_no", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>IFSC Code</label>
-          <input type="text" placeholder="HDFC0001234" value={client.ifsc} onChange={e => setC("ifsc", e.target.value)} />
-        </div>
-        <div className="field">
-          <label>Branch</label>
-          <input type="text" placeholder="Branch Name" value={client.branch} onChange={e => setC("branch", e.target.value)} />
-        </div>
-      </div>
-    </>
-  )}
-</div>
-
-            {/* ── PHASE 3 + 4: Items + GST ── */}
+            {/* Bill To */}
             <div className="card">
               <div className="card__head">
-                Line Items
-                
+                Bill To
+                {isNewClient && (
+                  <button className="btn--link" onClick={() => setIsNewClient(false)}>← Select existing</button>
+                )}
               </div>
 
-              {/* GST Toggle */}
+              {!isNewClient ? (
+                <div className="client-toggle">
+                  <div className="field" style={{ flex: 1, maxWidth: 360 }}>
+                    <label>Client</label>
+                    <select value={selectedClientId} onChange={e => handleClientSelect(e.target.value)}>
+                      <option value="">Select client…</option>
+                      {clientOptions.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                      <option value="NEW">+ Add new client</option>
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid3" style={{ marginBottom: 14 }}>
+                    <div className="field span2">
+                      <label>Client Name *</label>
+                      <input type="text" placeholder="Company or person name"
+                        value={client.name} onChange={e => setC("name", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>GST Number</label>
+                      <input type="text" placeholder="22AAAAA0000A1Z5"
+                        value={client.gst_no} onChange={e => setC("gst_no", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>Email</label>
+                      <input type="email" placeholder="client@email.com"
+                        value={client.email} onChange={e => setC("email", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>Phone</label>
+                      <input type="text" placeholder="+91 98765 43210"
+                        value={client.phone} onChange={e => setC("phone", e.target.value)} />
+                    </div>
+                    <div className="field span2">
+                      <label>Address</label>
+                      <input type="text" placeholder="Street, City, PIN"
+                        value={client.address} onChange={e => setC("address", e.target.value)} />
+                    </div>
+                  </div>
+
+                  <div className="divider" style={{ margin: "20px 0", borderTop: "1px solid var(--glass-border)" }} />
+
+                  <div className="card__head" style={{ marginBottom: 14, border: "none", padding: 0, fontSize: "0.9rem" }}>
+                    Client Bank Details (Optional)
+                  </div>
+                  <div className="grid3">
+                    <div className="field">
+                      <label>Bank Name</label>
+                      <input type="text" placeholder="e.g. HDFC Bank"
+                        value={client.bank_name} onChange={e => setC("bank_name", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>Account Name</label>
+                      <input type="text" placeholder="Name as per bank"
+                        value={client.account_name} onChange={e => setC("account_name", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>Account Number</label>
+                      <input type="number" placeholder="000012345678"
+                        value={client.account_no} onChange={e => setC("account_no", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>IFSC Code</label>
+                      <input type="text" placeholder="HDFC0001234"
+                        value={client.ifsc} onChange={e => setC("ifsc", e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label>Branch</label>
+                      <input type="text" placeholder="Branch Name"
+                        value={client.branch} onChange={e => setC("branch", e.target.value)} />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Line Items */}
+            <div className="card">
+              <div className="card__head">Line Items</div>
+
               <div className="gst-row-header">
                 <label className="gst-toggle">
                   <input type="checkbox" checked={useGST} onChange={e => setUseGST(e.target.checked)} />
                   Apply GST
                 </label>
-                
               </div>
 
-              {/* Items Table */}
               <div className="items-table-wrap">
                 <table className="items-table">
                   <thead>
@@ -523,7 +535,7 @@ export default function Dashboard({ user }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {computed.map((item, idx) => (
+                    {computed.map((item) => (
                       <tr key={item.id}>
                         <td>
                           <select
@@ -542,32 +554,41 @@ export default function Dashboard({ user }) {
                             <option value="__custom__">+ Custom</option>
                           </select>
                           {(!itemOptions.includes(item.description) || item.description === "") && (
-                            <input type="text" placeholder="Custom description"
+                            <input
+                              type="text"
+                              placeholder="Custom description"
                               value={item.description}
                               onChange={e => updateItem(item.id, "description", e.target.value)}
-                              style={{ marginTop: 4 }} />
+                              style={{ marginTop: 4 }}
+                            />
                           )}
                         </td>
                         <td>
                           <input type="text" placeholder="HSN" value={item.hsn_code}
-                            onChange={e => updateItem(item.id, "hsn_code", e.target.value)} style={{ width: 80 }} />
+                            onChange={e => updateItem(item.id, "hsn_code", e.target.value)}
+                            style={{ width: 80 }} />
                         </td>
                         <td>
                           <input type="number" value={item.qty} min="0"
-                            onChange={e => updateItem(item.id, "qty", e.target.value)} style={{ width: 55, textAlign: "right" }} />
+                            onChange={e => updateItem(item.id, "qty", e.target.value)}
+                            style={{ width: 55, textAlign: "right" }} />
                         </td>
                         <td>
-                          <select value={item.unit} onChange={e => updateItem(item.id, "unit", e.target.value)} style={{ width: 75 }}>
+                          <select value={item.unit}
+                            onChange={e => updateItem(item.id, "unit", e.target.value)}
+                            style={{ width: 75 }}>
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
                         </td>
                         <td>
                           <input type="number" value={item.unit_price} min="0"
-                            onChange={e => updateItem(item.id, "unit_price", e.target.value)} style={{ width: 85, textAlign: "right" }} />
+                            onChange={e => updateItem(item.id, "unit_price", e.target.value)}
+                            style={{ width: 85, textAlign: "right" }} />
                         </td>
                         <td>
                           <input type="number" value={item.discount} min="0" max="100"
-                            onChange={e => updateItem(item.id, "discount", e.target.value)} style={{ width: 60, textAlign: "right" }} />
+                            onChange={e => updateItem(item.id, "discount", e.target.value)}
+                            style={{ width: 60, textAlign: "right" }} />
                         </td>
                         <td className="item-amount">₹{fmt(item.taxable_value)}</td>
                         {useGST && <td className="item-amount">₹{fmt(item.cgst_amount)}</td>}
@@ -601,59 +622,47 @@ export default function Dashboard({ user }) {
                     <span className="totals-value">₹{fmt(taxableTotal)}</span>
                   </div>
                   {useGST && (
-  <>
-    <div className="totals-row">
-      <span className="totals-label">
-        CGST %
-        <input
-          type="number"
-          value={computed[0]?.cgst_rate ?? 9}
-          min="0"
-          max="14"
-          style={{ width: 60, marginLeft: 8 }}
-          onChange={e =>
-            setItems(p =>
-              p.map(it => ({
-                ...it,
-                cgst_rate: Number(e.target.value)
-              }))
-            )
-          }
-        />
-      </span>
-      <span className="totals-value">₹{fmt(cgstTotal)}</span>
-    </div>
-
-    <div className="totals-row">
-      <span className="totals-label">
-        SGST %
-        <input
-          type="number"
-          value={computed[0]?.sgst_rate ?? 9}
-          min="0"
-          max="14"
-          style={{ width: 60, marginLeft: 8 }}
-          onChange={e =>
-            setItems(p =>
-              p.map(it => ({
-                ...it,
-                sgst_rate: Number(e.target.value)
-              }))
-            )
-          }
-        />
-      </span>
-      <span className="totals-value">₹{fmt(sgstTotal)}</span>
-    </div>
-
-    <div className="totals-row">
-      <span className="totals-label">Total GST</span>
-      <span className="totals-value">
-        {(computed[0]?.cgst_rate ?? 0) + (computed[0]?.sgst_rate ?? 0)}%
-      </span>
-    </div>
-  </>
-)}
+                    <>
+                      <div className="totals-row">
+                        <span className="totals-label">
+                          CGST %
+                          <input
+                            type="number"
+                            value={computed[0]?.cgst_rate ?? 9}
+                            min="0"
+                            max="14"
+                            style={{ width: 60, marginLeft: 8 }}
+                            onChange={e =>
+                              setItems(p => p.map(it => ({ ...it, cgst_rate: Number(e.target.value) })))
+                            }
+                          />
+                        </span>
+                        <span className="totals-value">₹{fmt(cgstTotal)}</span>
+                      </div>
+                      <div className="totals-row">
+                        <span className="totals-label">
+                          SGST %
+                          <input
+                            type="number"
+                            value={computed[0]?.sgst_rate ?? 9}
+                            min="0"
+                            max="14"
+                            style={{ width: 60, marginLeft: 8 }}
+                            onChange={e =>
+                              setItems(p => p.map(it => ({ ...it, sgst_rate: Number(e.target.value) })))
+                            }
+                          />
+                        </span>
+                        <span className="totals-value">₹{fmt(sgstTotal)}</span>
+                      </div>
+                      <div className="totals-row">
+                        <span className="totals-label">Total GST</span>
+                        <span className="totals-value">
+                          {(computed[0]?.cgst_rate ?? 0) + (computed[0]?.sgst_rate ?? 0)}%
+                        </span>
+                      </div>
+                    </>
+                  )}
                   {roundOff && (
                     <div className="totals-row">
                       <span className="totals-label">
@@ -677,25 +686,28 @@ export default function Dashboard({ user }) {
                 </div>
               </div>
 
-              {/* Amount in Words */}
               <div className="words-box">
                 {numberToWords(grandTotal)}
               </div>
             </div>
 
-            {/* ── Notes + Declaration ── */}
+            {/* Notes & Declaration */}
             <div className="card">
               <div className="card__head">Notes & Declaration</div>
               <div className="grid2">
                 <div className="field">
                   <label>Notes / Terms</label>
-                  <textarea placeholder="Payment terms, special instructions…" value={meta.notes}
-                    onChange={e => setM("notes", e.target.value)} />
+                  <textarea
+                    placeholder="Payment terms, special instructions…"
+                    value={meta.notes}
+                    onChange={e => setM("notes", e.target.value)}
+                  />
                 </div>
                 <div className="field">
                   <label>Declaration</label>
-                  <textarea placeholder="We declare that this invoice shows the actual price of the goods/services described…"
-                    defaultValue="We declare that this invoice shows the actual price of the goods/services described and that all particulars are true and correct." />
+                  <textarea
+                    defaultValue="We declare that this invoice shows the actual price of the goods/services described and that all particulars are true and correct."
+                  />
                 </div>
               </div>
             </div>
@@ -718,16 +730,21 @@ export default function Dashboard({ user }) {
               <span className="card__head-tag">{filteredInvoices.length} records</span>
             </div>
 
-            {/* Filters */}
             <div className="inv-filters">
               <div className="field inv-search">
-                <input type="text" placeholder="Search by invoice no, client, job…"
-                  value={search} onChange={e => setSearch(e.target.value)} />
+                <input
+                  type="text"
+                  placeholder="Search by invoice no, client, job…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
               </div>
               <div className="field" style={{ width: 160 }}>
                 <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
                   <option value="">All statuses</option>
-                  {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+                  {STATUS_OPTIONS.map(s => (
+                    <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -763,13 +780,9 @@ export default function Dashboard({ user }) {
                         </span>
                       </td>
                       <td className="num" style={{ fontWeight: 600 }}>₹{fmt(inv.grand_total)}</td>
-                     <td className="num">
+                      <td className="num">
                         <a
-                          href={
-                            import.meta.env.DEV
-                              ? `http://localhost:5001/invoice/${inv.id}`
-                              : `https://livit-invoice-app.vercel.app/api/invoice?id=${inv.id}`
-                          }
+                          href={getPdfUrl(inv.id || inv.invoice_id)}
                           target="_blank"
                           rel="noreferrer"
                           className="btn btn--sm"
