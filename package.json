@@ -13,10 +13,14 @@
   },
   "dependencies": {
     "@sparticuz/chromium": "^147.0.0",
-    "@supabase/supabase-js": "^2.101.1",
-    "puppeteer-core": "^24.40.0",
+    "@supabase/supabase-js": "^2.105.4",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "puppeteer": "^24.43.1",
+    "puppeteer-core": "^24.43.1",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "ws": "^8.20.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

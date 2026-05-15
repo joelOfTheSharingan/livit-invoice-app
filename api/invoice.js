@@ -1,12 +1,17 @@
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import chromium from "@sparticuz/chromium";
+import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
+import ws from "ws";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient( 
+  SUPABASE_URL, 
+  SUPABASE_ANON_KEY,
+   { 
+    realtime: { transport: ws, },
+   } 
+  );
 export default async function handler(req, res) {
   try {
     const { id } = req.query;
@@ -111,7 +116,7 @@ const html = `
 
 <div style="text-align: center; padding: 10px;">
         <img 
-            src="https://raw.githubusercontent.com/joelOfTheSharingan/livit-invoice-app/refs/heads/main/api/image.png" 
+            src="https://raw.githubusercontent.com/joelOfTheSharingan/livit-invoice-app/main/api/image.png" 
             alt="Company Logo" 
             style="max-height: 80px;"
         />
@@ -241,15 +246,26 @@ const html = `
 `;
 
     // ✅ Launch Chromium (FIXED)
-    const browser = await puppeteer.launch({
-      args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath: await chromium.executablePath(),
-      headless: true,
-    });
+    const isVercel = !!process.env.VERCEL;
+    const browser = await puppeteer.launch(
+      isVercel
+        ? {
+            args: [
+              ...chromium.args,
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+            ],
+            executablePath: await chromium.executablePath(),
+            headless: true,
+          }
+        : {
+            headless: true,
+          }
+    );
 
     const page = await browser.newPage();
 
-    await page.setContent(html, { waitUntil: "load" });
+    await page.setContent(html, { waitUntil: "networkidle0"});
 
     const pdf = await page.pdf({
       format: "A4",
