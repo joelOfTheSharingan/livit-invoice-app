@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { supabase } from "./lib/supabase.js";
 import { useAuth } from "./auth/UseAuth.js";
-
 import Dashboard from "./Dashboard.jsx";
 import Login from "./Login.jsx";
 
