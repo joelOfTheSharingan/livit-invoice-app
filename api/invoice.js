@@ -3,8 +3,8 @@ import chromium from "@sparticuz/chromium";
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import ws from "ws";
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = "https://eycuakkufbolyyawlpno.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5Y3Vha2t1ZmJvbHl5YXdscG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyMjkyODMsImV4cCI6MjA2OTgwNTI4M30.cfZgo625Au9Ss0dSJYMuEMWUvuzD-4mOBD1dvnfp_tI";
 const supabase = createClient( 
   SUPABASE_URL, 
   SUPABASE_ANON_KEY,

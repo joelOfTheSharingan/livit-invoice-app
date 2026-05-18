@@ -1,0 +1,14 @@
+/* Utility classes */
+.text-muted   { color: var(--text-muted); }
+.text-sm      { font-size: 0.8rem; }
+.font-bold    { font-weight: 700; }
+.flex         { display: flex; }
+.items-center { align-items: center; }
+.gap-2        { gap: 8px; }
+.gap-4        { gap: 16px; }
+.mt-2         { margin-top: 8px; }
+.mt-4         { margin-top: 16px; }
+.mb-2         { margin-bottom: 8px; }
+.mb-4         { margin-bottom: 16px; }
+.w-full       { width: 100%; }
+.hidden       { display: none !important; }

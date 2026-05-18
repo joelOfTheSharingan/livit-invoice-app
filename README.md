@@ -1,16 +1,41 @@
-# React + Vite
+# Livit Invoice App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Invoice management system for Livit Interiors — built with React, Vite, and Supabase.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+cp .env.example .env   # fill in your keys
+npm run dev
+```
 
-## React Compiler
+## Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── auth/          Authentication hook
+├── components/    UI components (dashboard, chatbot, common, layout)
+├── hooks/         Stateful business logic hooks
+├── lib/           Supabase client init
+├── pages/         Page-level controllers (Dashboard, Login)
+├── services/      External communication (Supabase, AI, PDF)
+├── store/         Shared state factories and constants
+├── styles/        Global CSS, variables, utilities
+└── utils/         Pure helper functions (calculations, formatting)
 
-## Expanding the ESLint configuration
+api/
+└── chat.js        Serverless proxy — keeps OpenRouter key server-side
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Environment Variables
+
+| Variable | Where | Description |
+|---|---|---|
+| `VITE_SUPABASE_URL` | `.env` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | `.env` | Supabase anon key |
+| `OPENROUTER_API_KEY` | Vercel env / `.env` | OpenRouter key (server-side only) |
+
+## Deploy
+
+Push to GitHub → import in Vercel → add env vars → done.
