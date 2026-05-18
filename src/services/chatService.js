@@ -1,8 +1,10 @@
-const API_URL =
-  import.meta.env.DEV
-    ? "http://localhost:5001/api/chat"
-    : "https://livit-invoice-app.vercel.app/api/chat";
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
+export const API_URL = isLocal
+  ? "http://localhost:5001/api/chat"
+  : "https://livit-invoice-app.vercel.app/api/chat";
 export async function sendChatMessage(messages) {
   const response = await fetch(API_URL, {
     method: "POST",

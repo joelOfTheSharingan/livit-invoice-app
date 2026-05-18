@@ -1,0 +1,12 @@
+curl https://api.freetheai.xyz/v1/chat/completions \
+  -H "Authorization: Bearer sta_734ece02ae5ea0f21688609128104052402c4c55a27965fc" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "or/openai/gpt-oss-20b:free",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hello world in Python"
+      }
+    ]
+  }'

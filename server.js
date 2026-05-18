@@ -18,6 +18,7 @@ app.get("/api/invoice", (req, res) => {
 });
 
 app.post("/api/chat", (req, res) => {
+  console.log("🔥 CHAT ROUTE HIT");
   return chatHandler(req, res);
 });
 
