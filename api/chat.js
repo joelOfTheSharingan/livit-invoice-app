@@ -4,75 +4,161 @@ import "dotenv/config";
 
 export default async function handler(req, res) {
 
-  // Allow only POST
-  if (req.method !== "POST") {
+  // ─────────────────────────────
+  // CORS
+  // ─────────────────────────────
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "*"
+  );
 
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, OPTIONS"
+  );
+
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type"
+  );
+
+  // Preflight
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // POST only
+  if (req.method !== "POST") {
     return res.status(405).json({
       error: "Method not allowed",
     });
-
   }
 
   try {
 
+    console.log("🔥 CHAT ROUTE HIT");
+
     const { messages } = req.body;
 
     // Validate payload
-    if (!messages || !Array.isArray(messages)) {
-
+    if (
+      !messages ||
+      !Array.isArray(messages)
+    ) {
       return res.status(400).json({
         error: "messages array is required",
       });
-
     }
 
     // Validate API key
     if (!process.env.OPENROUTER_API_KEY) {
-
       return res.status(500).json({
-        error: "Missing OPENROUTER_API_KEY in .env",
+        error:
+          "Missing OPENROUTER_API_KEY",
       });
-
     }
 
-    // Send request to FreeTheAI
-    const response = await fetch(
-      "https://api.freetheai.xyz/v1/chat/completions",
-      {
-
-        method: "POST",
-
-        headers: {
-
-          "Content-Type": "application/json",
-
-          Authorization:
-            `Bearer ${process.env.OPENROUTER_API_KEY.trim()}`,
-
-        },
-
-        body: JSON.stringify({
-
-          model: "bbl/gemini-2.5-flash",
-
-          messages,
-
-        }),
-
-      }
+    console.log(
+      "OPENROUTER_API_KEY exists:",
+      !!process.env.OPENROUTER_API_KEY
     );
 
-    const data = await response.json();
+    // Fallback model
+    const MODEL =
+      process.env.OPENROUTER_MODEL ||
+      "google/gemma-3-27b-it:free";
 
-    // Handle upstream API errors
-    if (!response.ok) {
+    let response;
+    let data;
 
-      console.error("AI Provider Error:", data);
+    // Retry loop
+    for (let i = 0; i < 3; i++) {
+
+      response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${process.env.OPENROUTER_API_KEY.trim()}`,
+
+          },
+
+          body: JSON.stringify({
+
+            model: MODEL,
+
+            messages,
+
+          }),
+
+        }
+      );
+
+      // Safe JSON parse
+      try {
+
+        data = await response.json();
+
+      } catch {
+
+        data = {
+          error: {
+            message:
+              "Invalid JSON response from provider",
+          },
+        };
+      }
+
+      // Success
+      if (response.ok) {
+        break;
+      }
+
+      // Retry rate limits
+      if (response.status === 429) {
+
+        const wait =
+          data?.error?.metadata
+            ?.retry_after_seconds || 5;
+
+        console.log(
+          `⏳ Rate limited. Retrying in ${wait}s`
+        );
+
+        await new Promise(resolve =>
+          setTimeout(
+            resolve,
+            wait * 1000
+          )
+        );
+
+        continue;
+      }
+
+      // Other errors
+      console.error(
+        "AI Provider Error:",
+        data
+      );
 
       return res
         .status(response.status)
         .json(data);
+    }
 
+    // Failed after retries
+    if (!response.ok) {
+
+      return res
+        .status(response.status)
+        .json(data);
     }
 
     // Success
@@ -80,12 +166,15 @@ export default async function handler(req, res) {
 
   } catch (err) {
 
-    console.error("Chat API Error:", err);
+    console.error(
+      "Chat API Error:",
+      err
+    );
 
     return res.status(500).json({
-      error: "Internal server error",
+      error:
+        err.message ||
+        "Internal server error",
     });
-
   }
-
 }

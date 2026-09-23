@@ -27,7 +27,7 @@ export default function Login() {
 
         window.location.href = isLocal
           ? "http://localhost:3000/livit-invoice-app/"
-          : "https://joelofthesharingan.github.io/livit-invoice-app/";
+          : "https://joelmg.in/";
       }
     }
 
@@ -49,7 +49,7 @@ export default function Login() {
 
           window.location.href = isLocal
             ? "http://localhost:3000/livit-invoice-app/"
-            : "https://joelofthesharingan.github.io/livit-invoice-app/";
+            : "https://joelmg.in/";
         }
       }
     );
@@ -68,7 +68,7 @@ export default function Login() {
 
     const redirectTo = isLocal
       ? "http://localhost:3000/livit-invoice-app/"
-      : "https://joelofthesharingan.github.io/livit-invoice-app/";
+      : "https://joelmg.in/";
 
     const { error } =
       await supabase.auth.signInWithOAuth({

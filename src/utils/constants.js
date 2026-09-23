@@ -17,4 +17,4 @@ export const PDF_BASE_URL = IS_LOCAL
 
 export const HOME_URL = IS_LOCAL
   ? "http://localhost:3000/home/login"
-  : "https://joelofthesharingan.github.io/home/login";
+  : "https://joelmg.in/login";
